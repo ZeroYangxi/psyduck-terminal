@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Psyduck Medical Files</title>
+  <link rel="icon" type="image/png" href="./0054Psyduck.png">
+  <style>
+    :root {
+      --terminal-bg: #1a1a1a;
+      --terminal-text: #33ff33;
+      --terminal-secondary: #ffcc00;
+      --terminal-highlight: #ff6666;
+      --font-main: 'Courier New', monospace;
+    }
+    
+    body, html {
+      margin: 0;
+      padding: 0;
+      background-color: var(--terminal-bg);
+      color: var(--terminal-text);
+      font-family: var(--font-main);
+      height: 100%;
+      overflow: hidden;
+    }
+    
+    .terminal-container {
+      width: 90%;
+      max-width: 900px;
+      height: 90vh;
+      margin: 2vh auto;
+      padding: 20px;
+      background-color: var(--terminal-bg);
+      border: 1px solid var(--terminal-text);
+      box-shadow: 0 0 10px rgba(51, 255, 51, 0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .terminal-header {
+      border-bottom: 1px solid var(--terminal-text);
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      text-align: center;
+    }
+    
+    .terminal-content {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding-right: 10px;
+    }
+    
+    .terminal-input-line {
+      display: flex;
+      margin-top: 15px;
+    }
+    
+    .prompt {
+      color: var(--terminal-secondary);
+      margin-right: 10px;
+    }
+    
+    #terminal-input {
+      background: transparent;
+      border: none;
+      color: var(--terminal-text);
+      font-family: var(--font-main);
+      font-size: 1em;
+      width: 100%;
+      outline: none;
+    }
+    
+    .command {
+      margin-bottom: 10px;
+    }
+    
+    .response {
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+    }
+    
+    .ascii-art {
+      color: var(--terminal-secondary);
+      white-space: pre;
+      line-height: 1.2;
+      margin: 20px 0;
+    }
+    
+    .highlight {
+      color: var(--terminal-highlight);
+    }
+    
+    .blink {
+      animation: blink-animation 1s steps(2, start) infinite;
+    }
+    
+    @keyframes blink-animation {
+      to {
+        visibility: hidden;
+      }
+    }
+    
+    .typing {
+      overflow: hidden;
+      border-right: .15em solid var(--terminal-text);
+      white-space: nowrap;
+      margin: 0;
+      animation: 
+        typing 3s steps(40, end),
+        blink-caret .75s step-end infinite;
+    }
+    
+    @keyframes typing {
+      from { width: 0 }
+      to { width: 100% }
+    }
+    
+    @keyframes blink-caret {
+      from, to { border-color: transparent }
+      50% { border-color: var(--terminal-text); }
+    }
+    
+    /* Custom scrollbar */
+    .terminal-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .terminal-content::-webkit-scrollbar-track {
+      background: var(--terminal-bg);
+    }
+    
+    .terminal-content::-webkit-scrollbar-thumb {
+      background: var(--terminal-text);
+    }
+  </style>
+</head>
+<body>
+  <div class="terminal-container">
+    <div class="terminal-header">
+      <p>POKÉMON MEDICAL DATABASE - CONFIDENTIAL</p>
+    </div>
+    <div class="terminal-content" id="terminal-content">
+      <div class="response typing">Initializing Pokémon Medical Database...</div>
+      <div class="response">Access granted to Medical File #151-Psyduck.</div>
+      <div class="ascii-art" id="psyduck-ascii">
+                                                           &:.&&                                       
+                                                  &&&     &&:x&&                                       
+                                                 &  +&   && X&&                                        
+                                                  &;+&   &X&&&                                         
+                                                   &+&& &&$&&     &&&&&                                
+                                                   &&$&&&X$& &&&;   .+&                                
+                                                    &&&&$&&&&XX$&&&&&&                                 
+                                             &&&&&&$&&&&&&&&&&&                                        
+                                        &&&                  &&&                                       
+                              & &x  .&       ............. .     &&                                    
+                             &   X&    .........................    &&                                 
+                          &&   &&   ..................... .::..:...   X&                               
+                         &   .&  ...   ................ ..:.......... .&&&&&:&                         
+                       &   .;&.&&  :&&.. ...........  .:+++;......   .&      &                         
+                      x  ..:;&         &       ..  ..&&      &X...&&&+..:::: &&                        
+                    && .:. & &    .`      ;....::;;;.&.          $&. &  ..::... $&                       
+                    &  .:.+x +.        :x....:.....&       .`      +  &:........ :&                      
+                   &. :::.&  ..&&.    &;$&$+.......&            &:...& ........  &                     
+                  && .... && . ...:;;X&     &&..  ..&&        :&..:: & .........  &&                   
+                  & ..+x+; & ..&.Xx.    ..    .&&&X+:..;;:+$$;...::: & ...........  &                  
+                  & ;;+;;;..&.&     &   .. &:..        &&&....::::::.$x ........... .&                 
+                  & .;;:.:;X&&          .&:..            &.:::::::::..& ............  &                
+                  &X .:+&&&             ..              :&.:::::::::.;& .............  &               
+                   &X&&                              . &...::::::::. .+ ..........:::.  &              
+                   &                                .  &.:::::... ..&&................. x              
+                 &                                  . &  ..   .;&&&. & .....::::::..... .              
+                &                                   . & &&&&&&... .. & ;............... .&             
+                                                    . & ..    .::::..& :;:.............. &             
+                &                                  .. & :::::::::::.x&.:::;;;;:..........&             
+                &                                 ..  & :::::::::::..& :::::::;;;;...:: .              
+                  &                              .   &..:::::::::::. & .::::::::::;:;.  &              
+                    &                         .   X&...:::::::::::::..&  .::::::::::.  &               
+                       &          ....         :&$  .+xxxx+;;:::::::.. &&...:::::.   &                 
+                          &&+&&&&+::.;&&&&&&$$.   ..      .:;++;;:::::.  &&.:::::.&&&&                 
+                          &     .......      .......................::::....:::::.   &                 
+                            ..................................:..:;;:::.::::::::..::  &                
+                         &  .........................................:::::::::::::::. &                
+                         & .........................................::::::::::::::::: x                
+                        &$ ...................................:::....:::::::::::::::: ;                
+            $+&&&       &  .........................................::::::::::::::::: :&               
+            &      .;&&$& .. ...................................::;:::::::::....::... .&               
+             &  :;..    ..... . ............................:.....::::.......::....&& :                
+              &: .;;;;;..& ;;:...     ..........      ........;;;;:::::.:&.&....&&  $ +                
+                &  .;;;: & .:;;;;::..................:..::;;;;:::::::...&   &&&X   ..&&                
+                 &+  .;;..& :::::;;+++++;;;;;;;;;;;;;+;;;;:::::::::::.+&  :     ;+;. :&                
+                   &X  .:.& ..::::::::::;::::;;;::::::::::::::::::::..&  ;+;+++;::::.    .&            
+                     &&    &$  ::::::::::::::::::::::::::::::::::::.:&  :;:::::::::::   &              
+                       &&.  .&  .::::::.:::::::::::::::::::::::::::.&  .;;:::::::::.   &               
+                          &&. $&  ..:::::.::::::::::::::::::::::::: &  ;;:::::::::   &&                
+                              &$&&   ..::::::::::::::::::::::...    & .+;:::::::    &                  
+                                  &&&..   .::::::::::..         .X&&&  +;::::.    &                    
+                                   & :&&&&:.........   ;&&&&        &.         &&                      
+                                &&   :    x&&&&&&&&&&&                &&:x&&&&                         
+                               &                     &                                                 
+                               &&&&&&&.               &                                                
+                                        &  &&&   &&&x                                                  
+
+      </div>
+      <div class="response">Type <span class="highlight">HELP</span> to see available commands.</div>
+    </div>
+    <div class="terminal-input-line">
+      <div class="prompt">doctor@pokemon-hospital $</div>
+      <input type="text" id="terminal-input" autofocus>
+    </div>
+  </div>
+
+  <!-- js script here -->
+  <script>
+    const terminalContent = document.getElementById('terminal-content');
+    const terminalInput = document.getElementById('terminal-input');
+    
+    // Available files in the system
+    const files = {
+      'diagnosis.txt': `PSYCHOLOGICAL ASSESSMENT REPORT
+PATIENT ID: #151-Psyduck
+PRIMARY DIAGNOSIS: Specific Phobia (Hydrophobia)
+
+CLINICAL OBSERVATIONS:
+• Shows heightened reactivity to sensory stimuli, especially water
+• Reports frequent headaches when overstimulated
+• Demonstrates clear signs of anxiety when near large bodies of water
+• Psychic abilities manifest unpredictably, usually during periods of stress
+
+NOTE: Patient's hydrophobia is particularly unusual for a Water-type Pokémon
+and may represent a significant challenge in natural habitat adaptation.
+
+PERSONAL NOTES (NOT FOR OFFICIAL RECORD):
+A Water-type Psyduck who's afraid of water???`,
+
+      'therapy_notes.txt': `SESSION #3 - DR. OAK 大木博士
+
+Patient continues to express significant distress about swimming.
+Reports trying to meet expectations of trainer, but experiences overwhelming
+sensory discomfort when submerged in water.
+
+Patient quote: "Quack...qua-qua-qua...quack!"
+
+When discussing coping mechanisms, patient demonstrated impressive
+hyperfocus on psychic training exercises, maintaining concentration for
+over 30 minutes - in stark contrast to typical attention span.
+
+TREATMENT DIRECTION:
+Instead of forcing adaptation to water environments, we'll explore
+alternative strategies that leverage patient's natural abilities.`,
+
+      'incident_report.txt': `EMERGENCY INCIDENT REPORT
+DATE: 14-05-2024
+LOCATION: Cerulean Gym Pool
+
+DESCRIPTION:
+Patient attempted swim training under trainer supervision. After refusing
+water entry multiple times, trainer encouraged "immersion technique."
+Patient entered shallow end but experienced severe panic attack upon
+water reaching chest level. Psychic abilities activated involuntarily,
+causing water displacement and minor facility damage.
+
+Patient lost consciousness briefly and required emergency transport.
+
+MEDICAL INTERVENTION:
+• Oxygen administration
+• Psychic dampening field until stabilized
+
+RECOMMENDATIONS:
+1. NO further water immersion without medical supervision
+2. Trainer education on sensory processing issues
+3. Development of individualized training plan acknowledging limitations`,
+
+      'brain_scan.txt': `NEUROLOGICAL ASSESSMENT
+STUDY TYPE: fMRI and Psychic Energy Mapping
+
+FINDINGS:
+- Heightened activity in prefrontal cortex during task-switching
+- Reduced dopamine receptor density in attention regulation centers
+- Unusual connections between limbic system and psychic energy nodes
+- Sensory processing areas show hyperactivity when exposed to water stimuli
+- Psychic energy centers activate during emotional distress
+
+INTERPRETATION:
+Subject's brain shows neurodiverse patterns. 
+The neural pathways connecting emotional regulation and psychic energy are particularly pronounced, explaining why
+emotional distress triggers psychic events.
+
+The water-specific sensory sensitivity appears to be related to
+hypersensitivity in specific neural pathways rather than learned behavior.
+
+CONCLUSION:
+This neurological profile supports both the ADHD diagnosis and explains
+the seemingly contradictory hydrophobia. 
+Subject's brain is 
+wired differently from typical Psyduck specimens."`,
+
+      'psyduck_journal_translated.txt': `Day 42:
+
+Today my trainer took me to the lake again. I tried really hard this time.
+I really did. I wanted to make her happy. But as soon as the water touched
+my chest, everything got too loud. The splashing sounded like explosions.
+I could feel every ripple against my feathers like they were needles.
+
+My head started hurting so bad. Then everything went white.
+
+When I woke up, my trainer looked scared. The other Pokémon were staring.
+I heard my trainer tell someone I was "defective" because what kind of
+water Pokémon can't swim?
+
+I wish I could explain that I want to swim. I want to be normal. But my
+brain feels different. Sometimes I can focus so well that time disappears
+(like when I'm practicing moving objects with my mind), but then water
+touches me and everything becomes TOO MUCH.
+
+Maybe I'm not a real water Pokémon. Maybe I'm just broken.`,
+
+      'treatment_plan.txt': `INDIVIDUALIZED TREATMENT PLAN
+PATIENT: #151-Psyduck
+
+OBJECTIVES:
+1. Develop healthy relationship with water within patient's comfort limits
+2. Build self-regulation skills for sensory processing
+3. Harness ADHD hyperfocus tendencies for psychic ability development
+4. Foster authentic self-acceptance
+
+INTERVENTIONS:
+• Gradual desensitization to water starting with small amounts
+• Mindfulness training to manage sensory overload
+• Structured environment with reduced distractions
+• Regular "focus sessions" for psychic ability practice
+• Support group with other neurodivergent Pokémon
+
+ACCOMMODATIONS:
+• Water-resistant protective gear for necessary water contact
+• Sensory breaks during training sessions
+• Visual schedule and reminders
+• Permission to use alternative methods for water-type moves
+
+SUCCESS METRICS:
+Success will NOT be measured by "normalcy" or conformity to typical
+water-type behavior, but by patient's subjective well-being, reduced
+distress, and development of authentic coping strategies.`
+    };
+    
+    // Game state
+    let gameState = {
+      currentStage: 'intro',
+      filesDiscovered: [],
+      swimLessonAttempted: false,
+      diagnosisRead: false
+    };
+    
+    // Add response to terminal
+    function addResponse(text, isCommand = false, isAsciiArt = false) {
+      const responseElement = document.createElement('div');
+      responseElement.className = isCommand ? 'command' : (isAsciiArt ? 'ascii-art' : 'response');
+      responseElement.innerHTML = text;
+      terminalContent.appendChild(responseElement);
+      
+      // Auto scroll to bottom
+      terminalContent.scrollTop = terminalContent.scrollHeight;
+    }
+    
+    // Process commands
+    function processCommand(command) {
+      // Add the command to the terminal
+      addResponse(`<span class="prompt">doctor@pokemon-hospital $</span> ${command}`, true);
+      
+      // Convert command to lowercase and trim
+      const cmd = command.toLowerCase().trim();
+      
+      // Process the command
+      if (cmd === 'help') {
+        addResponse(`Available commands:
+<span class="highlight">HELP</span> - Display this help message
+<span class="highlight">LS</span> - List available files
+<span class="highlight">CAT [filename]</span> - Display file contents
+<span class="highlight">CLEAR</span> - Clear the terminal
+<span class="highlight">START THERAPY</span> - Begin therapy session with Psyduck
+<span class="highlight">TEACH SWIM</span> - Attempt to teach Psyduck to swim
+<span class="highlight">STATUS</span> - Check Psyduck's current status`);
+      } 
+      else if (cmd === 'ls') {
+        let fileList = '';
+        
+        // Determine which files are available based on game state
+        if (gameState.currentStage === 'intro') {
+          fileList = 'diagnosis.txt';
+          gameState.filesDiscovered.push('diagnosis.txt');
+        } else if (gameState.swimLessonAttempted) {
+          fileList = Object.keys(files).join('\n');
+          gameState.filesDiscovered = Object.keys(files);
+        } else if (gameState.diagnosisRead) {
+          fileList = 'diagnosis.txt\ntherapy_notes.txt\npsyduck_journal_translated.txt';
+          gameState.filesDiscovered = ['diagnosis.txt', 'therapy_notes.txt', 'psyduck_journal_translated.txt'];
+        }
+        
+        addResponse(fileList);
+      }
+      else if (cmd.startsWith('cat ')) {
+        const fileName = cmd.substring(4);
+        
+        if (files[fileName] && gameState.filesDiscovered.includes(fileName)) {
+          addResponse(files[fileName]);
+          
+          // Update game state if diagnosis is read
+          if (fileName === 'diagnosis.txt') {
+            gameState.diagnosisRead = true;
+            gameState.currentStage = 'diagnosis-read';
+          }
+        } else {
+          addResponse(`Error: File '${fileName}' not found or not accessible.`);
+        }
+      }
+      else if (cmd === 'clear') {
+        // Clear all but the ASCII art
+        const nodes = terminalContent.childNodes;
+        const asciiArt = document.getElementById('psyduck-ascii');
+        
+        while (terminalContent.firstChild) {
+          terminalContent.removeChild(terminalContent.firstChild);
+        }
+        
+        terminalContent.appendChild(asciiArt);
+      }
+      else if (cmd === 'start therapy') {
+        if (gameState.diagnosisRead) {
+          startTherapySession();
+        } else {
+          addResponse("You need to review the patient's diagnosis first. Try 'ls' to see diagnosis and then 'cat diagnosis.txt'.");
+        }
+      }
+      else if (cmd === 'teach swim') {
+        startSwimLesson();
+      }
+      else if (cmd === 'status') {
+        displayStatus();
+      }
+      else {
+        addResponse(`Command not recognized. Type <span class="highlight">HELP</span> for available commands. Type <span class="highlight">CAT [file name]</span> to access different files.`);
+      }
+      
+      // Clear the input
+      terminalInput.value = '';
+    }
+    
+    function startTherapySession() {
+      gameState.currentStage = 'therapy';
+      
+      addResponse(`<span class="highlight">--- THERAPY SESSION INITIATED ---</span>`);
+      addResponse(`You: "Hello Psyduck, how are you feeling today?"`);
+      
+      setTimeout(() => {
+        addResponse(`Psyduck: <span class="highlight">"Psy...duck? My head hurts. Everyone wants me to swim."</span>`);
+        
+        setTimeout(() => {
+          addResponse(`You now have access to additional files. Type <span class="highlight">LS</span> to see them.`);
+        }, 1500);
+      }, 1500);
+    }
+    
+    function startSwimLesson() {
+      gameState.currentStage = 'swim-lesson';
+      gameState.swimLessonAttempted = true;
+      
+      addResponse(`<span class="highlight">--- SWIM TRAINING INITIATED ---</span>`);
+      
+      setTimeout(() => {
+        addResponse(`You lead Psyduck to the water's edge. It looks anxious.`);
+        
+        setTimeout(() => {
+          const anxiousPsyduck = 
+`        ⠀⠀⠀⠀⣀⣤⣤⣶⣶⣶⣦⣤⣀⠀⠀⠀⠀⠀⠀
+        ⠀⢀⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣦⡀⠀⠀⠀
+        ⢰⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡄⠀⠀
+        ⢸⣿⣿⣿⣿⠟⠉⠉⠙⠛⣿⣿⣿⣿⣿⣿⡇⠀⠀
+        ⢸⣿⣿⣿⣇⠀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⡇⠀⠀
+        ⢸⣿⣿⣿⣿⡀⠀⠀⠀⠀⢸⣿⣿⣿⣿⣿⠇⠀⠀
+        ⠘⢿⣿⣿⣿⣷⡀⠀⠀⢀⣾⣿⣿⣿⡿⠋⠀⠀⠀
+        ⠀⠀⠉⠻⢿⣿⣿⣶⣶⣿⣿⣿⠿⠛⠁⠀⠀⠀⠀
+        ⠀⠀⠀⠀⠀⠉⠉⠉⠉⠉⠁⠀⠀⠀⠀⠀⠀⠀⠀`;
+          
+          addResponse(anxiousPsyduck, false, true);
+          
+          setTimeout(() => {
+            addResponse(`Psyduck: <span class="highlight">"Quack...qua-qua...quack!!!"</span> *holds head in pain*`);
+            
+            setTimeout(() => {
+              addResponse(`As you encourage Psyduck to enter the water, it becomes increasingly distressed.`);
+              
+              setTimeout(() => {
+                addResponse(`Psyduck attempts to step into the water but freezes. Its eyes begin to glow blue.`);
+                
+                setTimeout(() => {
+                  addResponse(`<span class="highlight">!!! EMERGENCY SITUATION !!!</span>`);
+                  addResponse(`Psyduck's psychic abilities activate uncontrollably! Water splashes everywhere!`);
+                  
+                  setTimeout(() => {
+                    addResponse(`<span class="highlight">--- PSYDUCK NEEDS MEDICAL ATTENTION ---</span>`);
+                    addResponse(`Emergency protocols activated. All medical files are now accessible.`);
+                    addResponse(`Type <span class="highlight">LS</span> to see all files.`);
+                  }, 2000);
+                }, 2000);
+              }, 2000);
+            }, 2000);
+          }, 1500);
+        }, 1500);
+      }, 1500);
+    }
+    
+    function displayStatus() {
+      let status = `PATIENT STATUS: #151-PS-ADHD (Psyduck)
+`;
+      
+      if (gameState.swimLessonAttempted) {
+        status += `
+CONDITION: Distressed
+PHYSICAL: Recovering from psychic episode
+MENTAL: Anxious, showing signs of shame
+RECOMMENDED ACTION: Review all medical files and develop alternative approach`;
+      } else if (gameState.diagnosisRead) {
+        status += `
+CONDITION: Stable
+PHYSICAL: Minor headache reported
+MENTAL: Anxious about training expectations
+RECOMMENDED ACTION: Consider therapy approach`;
+      } else {
+        status += `
+CONDITION: Unknown - medical files not yet reviewed
+RECOMMENDED ACTION: Access diagnosis file`;
+      }
+      
+      addResponse(status);
+    }
+    
+    // Event listener for the input
+    terminalInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const command = terminalInput.value;
+        if (command) {
+          processCommand(command);
+        }
+      }
+    });
+    
+    // Initial focus
+    terminalInput.focus();
+    
+    // Keep focus on input when clicking anywhere in the terminal
+    document.querySelector('.terminal-container').addEventListener('click', function() {
+      terminalInput.focus();
+    });
+  </script>
+</body>
+</html>
